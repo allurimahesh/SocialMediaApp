@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import {Pagination, Grid, Card, Typography, CardContent, TextField, Button, Divider} from '@mui/material';
+import {Pagination, Grid, Card, Typography, CardContent, TextField, Button, Divider, InputAdornment} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function Posts() {
 
@@ -84,18 +85,29 @@ export default function Posts() {
       }
     }
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
       e.preventDefault();
-      setSearchInput(e.target.value);
+      setSearchInput(e.target.value); 
+       if(e.target.value !== ''){
+      try {
+        const response = await fetch(`http://localhost:8000/api/posts/search/?q=${searchInput}`);
+        const data = await response.json(); 
+        if( data.message === "No Posts found") {
+          setData([]);
+        } else {
+          setData(data);
+        }
+        console.log(data) 
+      } catch (error) {
+        console.log('error in seacrh ')
+      }} else {
+        getAllposts();
+      }
     } 
 
     const handlePagination = (e) => {
       e.preventDefault(); 
     }
-
-    // if (searchInput.length >= 3) {
-    //     console.log(searchInput)
-    // }
 
     const handleSavePost = async (e) => {
       e.preventDefault();
@@ -174,7 +186,13 @@ export default function Posts() {
                 </Grid>
                 {/* FontFace:' Arial, Helvetica, sans-serif', background: 'linear-gradient(to right, #f32170, #ff6b08, #cf23cf, #eedd44)', '-webkit-text-fill-color': 'transparent', '-webkit-background-clip': 'text' */}
                 <Grid item xs={8} style={{textAlign: 'right'}} >  
-                    <TextField size="small" id="outlined-basic" variant="outlined" placeholder="Search here...." onChange={handleSearch} value={searchInput} style={{marginRight: "5px"}}></TextField>
+                    <TextField size="small" id="outlined-basic" variant="outlined" placeholder="Search here...." value={searchInput} onChange={handleSearch} style={{marginRight: "5px"}} InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="start" >
+                          <SearchIcon />
+                        </InputAdornment>
+                      )
+                      }}></TextField>
                     <Button variant="outlined" onClick={handleClickOpen} endIcon={<AddIcon />} style={{marginTop: "2px"}}>Add post</Button>
                 </Grid>
             </Grid> 
@@ -182,9 +200,9 @@ export default function Posts() {
             <div className="body">
             {data.length !== 0
             ? (<Grid container >
-            {data.map((post) => {
+            {data && data.map((post) => {
                 return (
-                    <Grid key={post.id} style={{paddingBottom: '15px'}}> 
+                    <Grid key={post.id} md={12} style={{paddingBottom: '15px', width: '74rem'}}> 
                     <Card variant="outlined" style={{border: '1px solid #0370d9'}}>
                         <CardContent>
                             <IconButton style={{float: 'right'}}
@@ -211,13 +229,22 @@ export default function Posts() {
                             </Typography>
                         </CardContent>
                     </Card> 
-                </Grid>
+                    </Grid>
                         )
                     })}
                 </Grid>)
-            : ('Loading...')}
+            : ( 
+            <Grid md={12} style={{paddingBottom: '15px', textAlign: 'center', width: '74rem'}}> 
+            <Card variant="outlined" style={{border: '1px solid #0370d9'}}>
+                <CardContent>
+                    <Typography variant="h6">
+                        No Posts Found
+                    </Typography> 
+                </CardContent>
+            </Card> 
+            </Grid>)}
             </div> 
-                <Pagination count={10} color="primary" variant="outlined" onChange={handlePagination} />
+                {/* <Pagination count={10} color="primary" variant="outlined" onChange={handlePagination} /> */}
         </div> 
         <div>
         <Dialog open={open}>
