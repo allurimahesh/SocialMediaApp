@@ -15,29 +15,27 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
-const posts = [{
-  id: 0,
-  title: 'Alluri Mahesh', 
-  description: 'Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.'
-},
-{
-  id: 1,
-  title: 'Jhon Clever', 
-  description: "Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.The Typography component uses the variantMapping prop to associate a UI variant with a semantic element. It's important to realize that the style of a typography component is independent from the semantic underlying element."
-},
-{
-  id: 2,
-  title: 'Mark Zukes', 
-  description: "Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.The Typography component uses the variantMapping prop to associate a UI variant with a semantic element. It's important to realize that the style of a typography component is independent from the semantic underlying element."
-}]
+// const posts = [{
+//   id: 0,
+//   title: 'Alluri Mahesh', 
+//   description: 'Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.'
+// },
+// {
+//   id: 1,
+//   title: 'Jhon Clever', 
+//   description: "Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.The Typography component uses the variantMapping prop to associate a UI variant with a semantic element. It's important to realize that the style of a typography component is independent from the semantic underlying element."
+// },
+// {
+//   id: 2,
+//   title: 'Mark Zukes', 
+//   description: "Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.The Typography component uses the variantMapping prop to associate a UI variant with a semantic element. It's important to realize that the style of a typography component is independent from the semantic underlying element."
+// }]
 
 
 export default function Posts() {
 
-    const navigate = useNavigate(); 
-    const [data, setData]= useState([]); 
-    // const [classes, setClasses]= useState();
-   // const [renderDate, setRenderDate] = useState();
+   const navigate = useNavigate(); 
+   const [data, setData]= useState([]); 
    const [open, setOpen] = React.useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [anchorEl, setAnchorEl] = React.useState(null);
@@ -45,9 +43,9 @@ export default function Posts() {
    const [openDelete, setOpenDelete] = useState();
    const [searchInput, setSearchInput] = useState([]);
    
-   const [titleSave, setSaveTitle] = useState('Alluri Mahesh');
+   const [titleSave, setSaveTitle] = useState('');
    const [descriptionSave, setSaveDescription] = useState('');
-   const [title, setTitle] = useState('Alluri Mahesh');
+   const [title, setTitle] = useState('');
    const [description, setDescription] = useState('');
    const [editPost, setEditPost] = useState({});
 
@@ -68,7 +66,7 @@ export default function Posts() {
     const handleClose = () => {
       setOpen(false);
       setAnchorEl(null);
-      setSaveTitle('Alluri Mahesh');
+      setSaveTitle('');
       setSaveDescription('');
     };
 
@@ -110,10 +108,25 @@ export default function Posts() {
     //     console.log(searchInput)
     // }
 
-    const handleSavePost = (e) => {
+    const handleSavePost = async (e) => {
       e.preventDefault();
       console.log(titleSave, descriptionSave);
+      const data = {
+        title: titleSave,
+        content: descriptionSave,
+      }
+      console.log(data)
 
+      const response = await fetch('http://localhost:8000/api/posts/', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const posts = await response.json();
+      setData(posts)
+      console.log(posts);
       setSaveTitle('');
       setSaveDescription('');
     }
@@ -124,7 +137,10 @@ export default function Posts() {
     }
 
     useEffect(() => {
-      setData(posts)        
+      const response = fetch('http://localhost:8000/api/posts/', {
+        method: 'get', 
+      });
+      setData(response)        
         document.title = 'Facebook | Posts';
       }, []
     );
@@ -175,7 +191,7 @@ export default function Posts() {
                                 {post.title}
                             </Typography>
                             <Typography variant="body2" component="p">
-                                <p>{post.description}</p>
+                                <p>{post.content}</p>
                             </Typography>
                         </CardContent>
                     </Card> 
@@ -193,7 +209,7 @@ export default function Posts() {
         <Divider style={{color: '#0370d9'}}/>
         <form onSubmit={handleSavePost}>
           <DialogContent>
-            <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={titleSave} onChange={event => setSaveTitle(event.target.value)} required disabled/>
+            <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={titleSave} onChange={event => setSaveTitle(event.target.value)} required/>
             <TextField autoFocus margin="dense" id="description" placeholder="Write Description" label="Description" rows={4} multiline fullWidth variant="standard" value={descriptionSave} onChange={event => setSaveDescription(event.target.value)} required/>
           </DialogContent>
           <DialogActions>
@@ -208,7 +224,7 @@ export default function Posts() {
             <Divider style={{color: '#0370d9'}}/>
           <form onSubmit={handleUpdatePost}>
           <DialogContent>
-            <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={title} onChange={event => setTitle(event.target.value)} required disabled/>
+            <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={title} onChange={event => setTitle(event.target.value)} required/>
             <TextField autoFocus margin="dense" id="description" placeholder="Write Description"  label="Description" fullWidth rows={4} multiline variant="standard" value={description} onChange={event => setDescription(event.target.value)} required/>
             </DialogContent>
             <DialogActions>
