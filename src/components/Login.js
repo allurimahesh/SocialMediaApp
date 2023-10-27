@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Loader from "./loader"; 
-import {TextField} from '@mui/material'
+// import {TextField} from '@mui/material'
 
 export default function Login() {
 
@@ -32,8 +32,10 @@ export default function Login() {
             <div className="auth-form-container" style={{backgroundColor: 'blue'}}>
                 <h1>Login</h1>
                 <form onSubmit={handleSubmit} className="login-form"> 
-                    <TextField id="emailormobile" label="Email or Mobile" variant="standard" value={emailorMobile}  onChange={ e => setEmailorMobile(e.target.value)} placeholder="Email Or Mobile"/> 
-                    <TextField id="emailormobile" label="Email or Mobile" variant="standard"  onChange={ e => setEmailorMobile(e.target.value)} placeholder="Email Or Mobile"/> 
+                    {/* <TextField id="emailormobile" label="Email or Mobile" variant="standard" value={emailorMobile}  onChange={ e => setEmailorMobile(e.target.value)} placeholder="Email Or Mobile"/> 
+                    <TextField id="password" label="Password" variant="standard"  onChange={ e => setPassword(e.target.value)} placeholder="Email Or Mobile"/>  */}
+                    <label>Email or Mobile</label>
+                    <input value={emailorMobile} onChange={ e => setEmailorMobile( e.target.value)} id="emailormobile" placeholder="Email or Mobile"></input>
                     <label>Password</label>
                     <input type="password" value={password} onChange={ e => setPassword( e.target.value)} id="password" placeholder="Password"></input>
                     {
