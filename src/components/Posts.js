@@ -64,8 +64,7 @@ export default function Posts() {
     };
 
     const handleOpenDelete = () => {
-      setOpenDelete(true);
-      console.log(editPost.id)
+      setOpenDelete(true); 
     }
 
     const handleDeleteClose = () => {
@@ -73,13 +72,13 @@ export default function Posts() {
       setAnchorEl(null);
     }
 
-    const handleDeletedClose = async () => {
-      console.log(editPost)
+    const handleDeletedClose = async () => { 
       try {
-        await fetch(`http://localhost:8000/api/posts/:${editPost.postId}`, {
+        await fetch(`http://localhost:8000/api/posts/${editPost.postId}`, {
           method: 'DELETE',
         });
         getAllposts();
+        setOpenDelete(false);
       } catch (error) {
         console.error('Error deleting user:', error);
       }
@@ -91,8 +90,7 @@ export default function Posts() {
     } 
 
     const handlePagination = (e) => {
-      e.preventDefault();
-      console.log(e)
+      e.preventDefault(); 
     }
 
     // if (searchInput.length >= 3) {
@@ -105,8 +103,7 @@ export default function Posts() {
         const data = {
           title: titleSave,
           content: descriptionSave,
-        }
-        console.log(data)
+        } 
         const response = await fetch('http://localhost:8000/api/posts/', {
           method: 'POST',
           body: JSON.stringify(data),
@@ -114,8 +111,7 @@ export default function Posts() {
             'Content-Type': 'application/json'
           }
         });
-        const posts = await response.json();
-        console.log(posts);
+        const posts = await response.json(); 
         getAllposts();
         setSaveTitle('');
         setSaveDescription('');
@@ -134,14 +130,13 @@ export default function Posts() {
         content: content
       }
       try {
-        const response = await fetch(`http://localhost:8000/api/posts/:${editPost.postId}`, {
+        const response = await fetch(`http://localhost:8000/api/posts/${editPost.postId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(userData),
         });
-        setAnchorEl(null);
         getAllposts();
         setOpenEdit(false);
       } catch (error) {
@@ -158,9 +153,9 @@ export default function Posts() {
     const getAllposts = async () => {
       try{
         const response = await fetch('http://localhost:8000/api/posts/');
-        const data = await response.json();
-        console.log(data)
+        const data = await response.json(); 
         setData(data);
+        setAnchorEl(null);
       } catch(error) {
         console.error('Error fetching posts:', error);
       }
