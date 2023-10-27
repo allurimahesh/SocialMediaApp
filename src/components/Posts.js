@@ -15,23 +15,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
-// const posts = [{
-//   id: 0,
-//   title: 'Alluri Mahesh', 
-//   description: 'Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.'
-// },
-// {
-//   id: 1,
-//   title: 'Jhon Clever', 
-//   description: "Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.The Typography component uses the variantMapping prop to associate a UI variant with a semantic element. It's important to realize that the style of a typography component is independent from the semantic underlying element."
-// },
-// {
-//   id: 2,
-//   title: 'Mark Zukes', 
-//   description: "Never is this principle more pertinent than when dealing with type, the bread and butter of Web-borne communication. A well-set paragraph of text is not supposed to wow the reader; the wowing should be left to the idea or observation for which the paragraph is a vehicle.The Typography component uses the variantMapping prop to associate a UI variant with a semantic element. It's important to realize that the style of a typography component is independent from the semantic underlying element."
-// }]
-
-
 export default function Posts() {
 
    const navigate = useNavigate(); 
@@ -46,7 +29,7 @@ export default function Posts() {
    const [titleSave, setSaveTitle] = useState('');
    const [descriptionSave, setSaveDescription] = useState('');
    const [title, setTitle] = useState('');
-   const [description, setDescription] = useState('');
+   const [content, setContent] = useState('');
    const [editPost, setEditPost] = useState({});
 
     const handleLogout = () => {
@@ -59,7 +42,7 @@ export default function Posts() {
     
     const handleClickOpenEdit = () => {
       setTitle(editPost.title);
-      setDescription(editPost.description);
+      setContent(editPost.content);
       setOpenEdit(true);
     }
 
@@ -90,8 +73,16 @@ export default function Posts() {
       setAnchorEl(null);
     }
 
-    const handleDeletedClose = () => {
-        // req api for delete the post.
+    const handleDeletedClose = async () => {
+      console.log(editPost)
+      try {
+        await fetch(`http://localhost:8000/api/posts/:${editPost.postId}`, {
+          method: 'DELETE',
+        });
+        getAllposts();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
     }
 
     const handleSearch = (e) => {
@@ -110,40 +101,70 @@ export default function Posts() {
 
     const handleSavePost = async (e) => {
       e.preventDefault();
-      console.log(titleSave, descriptionSave);
-      const data = {
-        title: titleSave,
-        content: descriptionSave,
-      }
-      console.log(data)
-
-      const response = await fetch('http://localhost:8000/api/posts/', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json'
+      try {
+        const data = {
+          title: titleSave,
+          content: descriptionSave,
         }
-      });
-      const posts = await response.json();
-      setData(posts)
-      console.log(posts);
-      setSaveTitle('');
-      setSaveDescription('');
+        console.log(data)
+        const response = await fetch('http://localhost:8000/api/posts/', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const posts = await response.json();
+        console.log(posts);
+        getAllposts();
+        setSaveTitle('');
+        setSaveDescription('');
+        setOpen(false);
+      } catch (error) {
+        console.log(error)
+      }
+     
     }
 
-    const handleUpdatePost = (e) => {
+    const handleUpdatePost = async (e) => {
       e.preventDefault();
-      console.log(title, description);
+      console.log(title, content);
+      const userData = {
+        title: title,
+        content: content
+      }
+      try {
+        const response = await fetch(`http://localhost:8000/api/posts/:${editPost.postId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+        setAnchorEl(null);
+        getAllposts();
+        setOpenEdit(false);
+      } catch (error) {
+        console.error('Error updating user:', error);
+      }
     }
 
     useEffect(() => {
-      const response = fetch('http://localhost:8000/api/posts/', {
-        method: 'get', 
-      });
-      setData(response)        
+      getAllposts();
         document.title = 'Facebook | Posts';
       }, []
     );
+
+    const getAllposts = async () => {
+      try{
+        const response = await fetch('http://localhost:8000/api/posts/');
+        const data = await response.json();
+        console.log(data)
+        setData(data);
+      } catch(error) {
+        console.error('Error fetching posts:', error);
+      }
+    }
 
     return(
       <>
@@ -166,7 +187,7 @@ export default function Posts() {
             <div className="body">
             {data.length !== 0
             ? (<Grid container >
-            {data.map((post, i) => {
+            {data.map((post) => {
                 return (
                     <Grid key={post.id} style={{paddingBottom: '15px'}}> 
                     <Card variant="outlined" style={{border: '1px solid #0370d9'}}>
@@ -225,7 +246,7 @@ export default function Posts() {
           <form onSubmit={handleUpdatePost}>
           <DialogContent>
             <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={title} onChange={event => setTitle(event.target.value)} required/>
-            <TextField autoFocus margin="dense" id="description" placeholder="Write Description"  label="Description" fullWidth rows={4} multiline variant="standard" value={description} onChange={event => setDescription(event.target.value)} required/>
+            <TextField autoFocus margin="dense" id="content" placeholder="Write Description"  label="Description" fullWidth rows={4} multiline variant="standard" value={content} onChange={event => setContent(event.target.value)} required/>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseEdit} variant="outlined" endIcon={<CloseIcon />}>Cancel</Button>
