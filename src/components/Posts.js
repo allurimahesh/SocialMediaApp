@@ -17,6 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import SearchIcon from '@mui/icons-material/Search';
 import moment from "moment/moment";
+import {getPosts, createPost, updatePost, deletePost, searchPost} from '../Services/post'
 
 export default function Posts() {
 
@@ -36,7 +37,7 @@ export default function Posts() {
    const [editPost, setEditPost] = useState({});
    const [openAlert, setOpenAlert] = useState(false);
    const [perPage, setPerPage] = useState([]);
-   const [pagesCount, setPagesCount] = useState(10);
+   const [pagesCount, setPagesCount] = useState(1);
    const [currentPage, setCurrentPage] = useState(1);
 
     const handleLogout = () => {
@@ -81,36 +82,43 @@ export default function Posts() {
 
     const handleDeletedClose = async () => { 
       try {
-        await fetch(`http://localhost:8000/api/posts/${editPost.postId}`, {
-          method: 'DELETE',
-        });
-        getAllposts();
-        setOpenDelete(false);
+        // await fetch(`http://localhost:8000/api/posts/${editPost.postId}`, {
+        //   method: 'DELETE',
+        // });
+        deletePost(editPost.postId).then( res => {
+          getAllposts();
+          setOpenDelete(false);
+        }).catch( error => {
+          setOpenAlert(true);
+        })    
       } catch (error) {
-        setOpenAlert(true);
+     
         console.error('Error deleting user:', error);
       }
     }
 
-    const handleSearch = async (e) => {
+    const handleSearch = (e) => {
       e.preventDefault();
       setSearchInput(e.target.value); 
        if(e.target.value !== ''){
       try {
-        const response = await fetch(`http://localhost:8000/api/posts/search/?q=${searchInput}`);
-        const data = await response.json(); 
-        if( data.message === "No Posts found") {
-          setData([]);
-          setCurrentPage(1);
-          setPagesCount(1)
-        } else {
-          const fulldata = data.reverse() 
-          setData(fulldata);
-          setPerPage(fulldata.slice(0,10));
-          setPagesCount(Math.ceil(fulldata.length/10))
-        } 
+        // const response = await fetch(`http://localhost:8000/api/posts/search/?q=${searchInput}`);
+        // const data = await response.json(); 
+        searchPost(searchInput).then(res => {
+          if( res.data.message === "No Posts found") {
+            setData([]);
+            setCurrentPage(1);
+            setPagesCount(1);
+          } else {
+            const fulldata = res.data.reverse() 
+            setData(fulldata);
+            setPerPage(fulldata.slice(0,10));
+            setPagesCount(Math.ceil(fulldata.length/10))
+          } 
+        }).catch( error => {
+          setOpenAlert(true);
+        })
       } catch (error) {
-        setOpenAlert(true);
         console.log('error in seacrh ')
       }} else {
         getAllposts();
@@ -119,54 +127,61 @@ export default function Posts() {
 
     const handlePagination = (e, page) => {
       e.preventDefault(); 
-      console.log(page)
       setCurrentPage(page)
       setPerPage(data.slice((page*10) - 10, page*10)) 
     }
 
-    const handleSavePost = async (e) => {
+    const handleSavePost = (e) => {
       e.preventDefault();
       try {
         const data = {
           title: titleSave,
           content: descriptionSave,
         } 
-         await fetch('http://localhost:8000/api/posts/', {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }); 
-        getAllposts();
-        setSaveTitle('');
-        setSaveDescription('');
-        setOpen(false);
+
+        // await fetch('http://localhost:8000/api/posts/', {
+        //   method: 'POST',
+        //   body: JSON.stringify(data),
+        //   headers: {
+        //     'Content-Type': 'application/json'
+        //   }
+        // }); 
+        createPost(data).then( res => {
+          getAllposts();
+          setSaveTitle('');
+          setSaveDescription('');
+          setOpen(false);
+        }).catch( error => {
+          setOpenAlert(true);
+        })
       } catch (error) {
-        setOpenAlert(true);
         console.log(error)
       }
      
     }
 
-    const handleUpdatePost = async (e) => {
+    const handleUpdatePost = (e) => {
       e.preventDefault(); 
       const userData = {
         title: title,
         content: content
       }
       try {
-         await fetch(`http://localhost:8000/api/posts/${editPost.postId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userData),
-        });
-        getAllposts();
-        setOpenEdit(false);
+        //  await fetch(`http://localhost:8000/api/posts/${editPost.postId}`, {
+        //   method: 'PUT',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(userData),
+        // });
+
+        updatePost(userData, editPost.postId).then( res => {
+          getAllposts();
+          setOpenEdit(false);
+        }).catch( error => {
+          setOpenAlert(true);
+        })
       } catch (error) {
-        setOpenAlert(true);
         console.error('Error updating user:', error);
       }
     }
@@ -177,17 +192,21 @@ export default function Posts() {
       }, []
     );
 
-    const getAllposts = async () => {
+    const getAllposts = () => {
       try{
-        const response = await fetch('http://localhost:8000/api/posts/');
-        const data = await response.json();
-        const fulldata = data.reverse() 
-        setData(fulldata);
-        setPerPage(fulldata.slice(0,10));
-        setPagesCount(Math.ceil(fulldata.length/10))
-        setAnchorEl(null);
+        // const response = await fetch('http://localhost:8000/api/posts/');
+        // const data = await response.json();
+        getPosts().then( res => {
+          console.log(res.data)
+          const fulldata = res.data.reverse() 
+          setData(fulldata);
+          setPerPage(fulldata.slice(0,10));
+          setPagesCount(Math.ceil(fulldata.length/10))
+          setAnchorEl(null);
+        }).catch (error => {
+          setOpenAlert(true);
+        });
       } catch(error) {
-        setOpenAlert(true);
         console.error('Error fetching posts:', error);
       }
     }
@@ -250,7 +269,7 @@ export default function Posts() {
                               <p style={{float: 'left'}}>{moment.utc(post.createdAt).local().startOf('seconds').fromNow()}</p>
                             </Typography>
                             <Typography variant="body2" component="p">
-                              <p style={{float: 'right', fontStyle: 'italic', color: '#0370D9'}}>- Alluri Mahesh</p>
+                              <p style={{float: 'right', fontStyle: 'italic', color: '#0370D9'}}>~ Alluri Mahesh</p>
                             </Typography>
                         </CardContent>
                     </Card> 
@@ -273,22 +292,22 @@ export default function Posts() {
         </div> 
         <div>
         <Dialog open={open}>
-        <DialogTitle style={{color: '#0370d9'}}>Add Post</DialogTitle>
-        <Divider style={{color: '#0370d9'}}/>
-        <form onSubmit={handleSavePost}>
-          <DialogContent>
-            <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={titleSave} onChange={event => setSaveTitle(event.target.value)} required/>
-            <TextField autoFocus margin="dense" id="description" placeholder="Write Description" label="Description" rows={4} multiline fullWidth variant="standard" value={descriptionSave} onChange={event => setSaveDescription(event.target.value)} required/>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} variant="outlined" endIcon={<CloseIcon />}>Cancel</Button>
-            <Button type="submit" variant="outlined" endIcon={<SendIcon />}>Submit</Button>
-          </DialogActions>
+          <DialogTitle style={{color: '#0370d9'}}>Add Post</DialogTitle>
+          <Divider style={{color: '#0370d9'}}/>
+          <form onSubmit={handleSavePost}>
+            <DialogContent>
+              <TextField autoFocus margin="dense" id="title" placeholder="Title" label="Title" fullWidth variant="standard" value={titleSave} onChange={event => setSaveTitle(event.target.value)} required/>
+              <TextField autoFocus margin="dense" id="description" placeholder="Write Description" label="Description" rows={4} multiline fullWidth variant="standard" value={descriptionSave} onChange={event => setSaveDescription(event.target.value)} required/>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} variant="outlined" endIcon={<CloseIcon />}>Cancel</Button>
+              <Button type="submit" variant="outlined" endIcon={<SendIcon />}>Submit</Button>
+            </DialogActions>
           </form>
         </Dialog>
 
         <Dialog open={openEdit}>
-        <DialogTitle style={{color: '#0370d9'}}>Update Post</DialogTitle>
+          <DialogTitle style={{color: '#0370d9'}}>Update Post</DialogTitle>
             <Divider style={{color: '#0370d9'}}/>
           <form onSubmit={handleUpdatePost}>
           <DialogContent>
@@ -317,7 +336,7 @@ export default function Posts() {
         </Dialog>
         </div>
         <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right'}}>
-          <Alert onClose={handleClose} severity="warning" sx={{ width: '100%' }}>
+          <Alert severity="warning" sx={{ width: '100%' }}>
            Something went wrong, Please try again!.
           </Alert>
         </Snackbar>
