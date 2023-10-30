@@ -19,7 +19,7 @@ export default function Signup() {
      }
 
      useEffect(() => {
-        document.title = 'Facebook | Signup';
+        document.title = 'OYT | Signup';
       }, []);
 
     return(

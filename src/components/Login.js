@@ -20,7 +20,7 @@ export default function Login() {
      }
 
      useEffect(() => {
-        document.title = 'Facebook | Login';
+        document.title = 'OYT | Login';
       }, []);
 
      const handleClick = () => {
