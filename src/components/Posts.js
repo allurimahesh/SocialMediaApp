@@ -127,8 +127,8 @@ export default function Posts() {
 
     const handlePagination = (e, page) => {
       e.preventDefault(); 
-      setCurrentPage(page)
-      setPerPage(data.slice((page*10) - 10, page*10)) 
+      setCurrentPage(page);
+      setPerPage(data.slice((page*10) - 10, page*10));
     }
 
     const handleSavePost = (e) => {
@@ -224,7 +224,7 @@ export default function Posts() {
         // const response = await fetch('http://localhost:8000/api/posts/');
         // const data = await response.json();
         getPosts().then( res => { 
-          const fulldata = res.data.reverse() 
+          const fulldata = res.data.reverse(); 
           setData(fulldata);
           setPerPage(fulldata.slice(0,10));
           setPagesCount(Math.ceil(fulldata.length/10))
@@ -262,7 +262,7 @@ export default function Posts() {
             <div className="body">
             {data.length !== 0
             ? (<Grid container >
-            {perPage && perPage.map((post, i) => {
+            {perPage && perPage.map((post) => {
                 return (
                     <Grid key={post.id} md={12} style={{paddingBottom: '15px', width: '74rem'}}> 
                     <Card variant="outlined" style={{border: '1px solid #0370d9'}}>
@@ -284,7 +284,7 @@ export default function Posts() {
                               <MenuItem key={post.id} onClick={handleOpenDelete}style={{color: '#0370d9'}}>Delete <DeleteIcon style={{color: '#0370d9'}}/></MenuItem>
                             </Menu>
                             <Typography variant="h6" style={{fontWeight: 'bold'}}>
-                                {post.title} {i+1}
+                                {post.title}
                             </Typography>
                             <Typography variant="body2" component="p">
                                 <p>{post.content}</p>
