@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import {Grid, Card, Typography, CardContent, TextField, Button, Divider, InputAdornment, Pagination, Snackbar} from '@mui/material';
+import {Grid, Card, Typography, CardContent, TextField, Button, Divider, Pagination, Snackbar} from '@mui/material';
 import Alert from '@mui/material/Alert';
 import AddIcon from '@mui/icons-material/Add';
 import Dialog from '@mui/material/Dialog';
@@ -14,10 +14,10 @@ import SendIcon from '@mui/icons-material/Send';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import SearchIcon from '@mui/icons-material/Search';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'; 
 import moment from "moment/moment";
-import {getPosts, createPost, updatePost, deletePost, searchPost} from '../Services/post'
+import {getPosts, createPost, updatePost, deletePost, searchPost} from '../Services/post';
+import { SearchInput } from "./SearchInput";
 
 export default function Posts() {
 
@@ -28,7 +28,7 @@ export default function Posts() {
    const [anchorEl, setAnchorEl] = React.useState(null);
    const openMenu = Boolean(anchorEl);
    const [openDelete, setOpenDelete] = useState();
-   const [searchInput, setSearchInput] = useState([]);
+   const [searchInput, setSearchInput] = useState('');
    
    const [titleSave, setSaveTitle] = useState('');
    const [descriptionSave, setSaveDescription] = useState('');
@@ -100,29 +100,29 @@ export default function Posts() {
     const handleSearch = (e) => {
       e.preventDefault();
       setSearchInput(e.target.value); 
-       if(e.target.value !== ''){
-      try {
-        // const response = await fetch(`http://localhost:8000/api/posts/search/?q=${searchInput}`);
-        // const data = await response.json(); 
-        searchPost(searchInput).then(res => {
-          if( res.data.message === "No Posts found") {
-            setData([]);
-            setCurrentPage(1);
-            setPagesCount(1);
-          } else {
-            const fulldata = res.data.reverse() 
-            setData(fulldata);
-            setPerPage(fulldata.slice(0,10));
-            setPagesCount(Math.ceil(fulldata.length/10))
-          } 
-        }).catch( error => {
-          setOpenAlert(true);
-        })
-      } catch (error) {
-        console.log('error in seacrh ')
-      }} else {
-        getAllposts();
-      }
+      //  if(e.target.value !== ''){
+      // try {
+      //   // const response = await fetch(`http://localhost:8000/api/posts/search/?q=${searchInput}`);
+      //   // const data = await response.json(); 
+      //   searchPost(e.target.value).then(res => {
+      //     if( res.data.message === "No Posts found") {
+      //       setData([]);
+      //       setCurrentPage(1);
+      //       setPagesCount(1);
+      //     } else {
+      //       const fulldata = res.data.reverse() 
+      //       setData(fulldata);
+      //       setPerPage(fulldata.slice(0,10));
+      //       setPagesCount(Math.ceil(fulldata.length/10))
+      //     } 
+      //   }).catch( error => {
+      //     setOpenAlert(true);
+      //   })
+      // } catch (error) {
+      //   console.log('error in seacrh ')
+      // }} else {
+      //   getAllposts();
+      // }
     } 
 
     const handlePagination = (e, page) => {
@@ -186,8 +186,35 @@ export default function Posts() {
       }
     }
 
+    useEffect( () => { 
+      if(searchInput !== '') { 
+        try {
+          // const response = await fetch(`http://localhost:8000/api/posts/search/?q=${searchInput}`);
+          // const data = await response.json(); 
+          searchPost(searchInput).then(res => {
+            if( res.data.message === "No Posts found") {
+              setData([]);
+              setCurrentPage(1);
+              setPagesCount(1);
+            } else {
+              const fulldata = res.data.reverse();
+              setData(fulldata);
+              setPerPage(fulldata.slice(0,10));
+              setPagesCount(Math.ceil(fulldata.length/10));
+            } 
+          }).catch( error => {
+            setOpenAlert(true);
+          })
+        } catch (error) {
+          console.log('error in seacrh ')
+        }} else {
+          getAllposts();
+        }
+    }, [searchInput]
+    );
+
     useEffect(() => {
-      getAllposts();
+    // getAllposts();
         document.title = 'OYT | Posts';
       }, []
     );
@@ -196,8 +223,7 @@ export default function Posts() {
       try{
         // const response = await fetch('http://localhost:8000/api/posts/');
         // const data = await response.json();
-        getPosts().then( res => {
-          console.log(res.data)
+        getPosts().then( res => { 
           const fulldata = res.data.reverse() 
           setData(fulldata);
           setPerPage(fulldata.slice(0,10));
@@ -209,6 +235,10 @@ export default function Posts() {
       } catch(error) {
         console.error('Error fetching posts:', error);
       }
+    }
+
+    const handleSnackClose = () => {
+      setOpenAlert(false)
     }
 
     return(
@@ -223,14 +253,8 @@ export default function Posts() {
                 <Grid item xs={4}>  
                     <h1 style={{textAlign: 'left', color:'#0370d9'}}>Posts</h1>
                 </Grid> 
-                <Grid item xs={8} style={{textAlign: 'right'}} >  
-                    <TextField size="small" id="outlined-basic" variant="outlined" placeholder="Search here...." value={searchInput} onChange={handleSearch} style={{marginRight: "5px"}} InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="start" >
-                          <SearchIcon />
-                        </InputAdornment>
-                      )
-                      }}></TextField>
+                <Grid item xs={8} style={{textAlign: 'right'}} > 
+                 <SearchInput searchInput={searchInput} handleSearch={handleSearch}/> 
                     <Button variant="outlined" onClick={handleClickOpen} endIcon={<AddIcon />} style={{marginTop: "2px"}}>Add post</Button>
                 </Grid>
             </Grid> 
@@ -335,7 +359,7 @@ export default function Posts() {
           </DialogActions>
         </Dialog>
         </div>
-        <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right'}}>
+        <Snackbar open={openAlert} autoHideDuration={3000} onClose={handleSnackClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right'}}>
           <Alert severity="warning" sx={{ width: '100%' }}>
            Something went wrong, Please try again!.
           </Alert>

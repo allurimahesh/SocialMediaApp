@@ -1,26 +1,25 @@
-import axois from "axios"
+import axois from "axios";
 
-    const API = "http://localhost:8000/api/posts/"
     const headers = {
         'Content-Type': 'application/json'
     }
 
     export const getPosts = () => {
-        return axois.get(API);
+        return axois.get(process.env.REACT_APP_API_URL);
     }
     
     export const createPost = (body) => { 
-        return axois.post(API, body, headers);
+        return axois.post(process.env.REACT_APP_API_URL, body, headers);
     }
     
     export const updatePost = (body, postId) => { 
-        return axois.put(API+`${postId}`, body, headers);
+        return axois.put(process.env.REACT_APP_API_URL + `${postId}`, body, headers);
     }
     
     export const deletePost = (postId) => {
-        return axois.delete(API+`${postId}`);
+        return axois.delete(process.env.REACT_APP_API_URL + `${postId}`);
     }
 
     export const searchPost = (searchInput) => {
-        return axois.get(API+`search/?q=${searchInput}`);
+        return axois.get(process.env.REACT_APP_API_URL + `search/?q=${searchInput}`);
     }
