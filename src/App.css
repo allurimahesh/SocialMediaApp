@@ -5,21 +5,23 @@
   align-items: center;
   justify-content: center;
   color: white;
+  background-color: rgb(200, 200, 212);
 }
 
-.auth-form-container, .login-form, .register-form {
+.auth-form-container,
+.login-form,
+.register-form {
   display: flex;
   flex-direction: column;
 }
 
 .auth-form-container {
-  background-image: linear-gradient(79deg, #7439db, #C66FBC 48%, #F7944D);
+  background-image: linear-gradient(79deg, #7439db, #c66fbc 48%, #f7944d);
   padding: 45px;
   border: 1px solid white;
   border-radius: 10px;
   background-color: white;
 }
-
 
 label {
   text-align: left;
@@ -50,7 +52,7 @@ button {
 }
 
 .bg-image {
-  background-image: image-set('images/facebookbg.png');
+  background-image: image-set("images/facebookbg.png");
   display: flex;
 }
 
@@ -86,4 +88,59 @@ button {
 
 .body {
   text-align: left;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+}
+
+.button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
+.game {
+  display: flex;
+  flex-direction: row;
+}
+
+.game-info {
+  margin-left: 20px;
 }
